@@ -1,5 +1,6 @@
 import 'error_message.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 abstract class StylePage extends StatelessWidget {
   const StylePage({super.key});
@@ -37,15 +38,42 @@ class CurrentlyPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            Text("${coord['cityName']}", style: StylePage.textStyles['title']),
-            Text("${coord['region']}", style: StylePage.textStyles['title']),
-            Text("${coord['country']}", style: StylePage.textStyles['title']),
-            Text("${current['temp']}", style: StylePage.textStyles['subtitle']),
+            Text(
+              "${coord['cityName']}",
+              style: TextStyle(
+                fontSize: 38,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            Text(
+              "${coord['region']}",
+              style: TextStyle(
+                fontSize: 38,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            Text(
+              "${coord['country']}",
+              style: TextStyle(
+                fontSize: 38,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            Text(
+              "${current['temp']}",
+              style: TextStyle(fontSize: 26, color: Colors.white),
+            ),
             Text(
               "${current['weather']}",
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(fontSize: 20, color: Colors.white),
             ),
-            Text("${current['wind']}", style: TextStyle(color: Colors.white)),
+            Text(
+              "${current['wind']}",
+              style: TextStyle(fontSize: 20, color: Colors.white),
+            ),
           ],
         )
         : ErrorMessage(errorMessage: errorText);
@@ -66,6 +94,8 @@ class TodayPage extends StatelessWidget {
 
   List<Widget> todayList() {
     List<Widget> list = [];
+
+    String todayDate = DateFormat('dd-MM-yyyy').format(DateTime.now());
 
     list.add(
       Center(
@@ -88,6 +118,21 @@ class TodayPage extends StatelessWidget {
         ),
       ),
     );
+
+    list.add(
+      Padding(
+        padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 8.0),
+        child: Text(
+          "Data: $todayDate",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+
     list.addAll(
       today.entries.map(
         (entry) => Padding(
@@ -153,10 +198,10 @@ class WeeklyPage extends StatelessWidget {
         (entry) => Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 3.0),
           child: Text(
-            '${entry.value['date']}   ${entry.value['min']}    ${entry.value['max']}    ${entry.value['weather']}',
+            '${entry.value['date']}      |      ${entry.value['min']}    ${entry.value['max']}      |      ${entry.value['weather']}',
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
-            style: StylePage.textStyles['default'],
+            style: TextStyle(color: Colors.white, fontSize: 15),
           ),
         ),
       ),
