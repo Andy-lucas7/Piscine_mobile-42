@@ -25,6 +25,7 @@ class CityInfoPage extends StatelessWidget {
           itemCount: listOfCities?.length ?? 10,
           itemBuilder: (BuildContext context, int index) {
             return ListTile(
+              leading: Icon(Icons.location_city, color: Colors.white),
               onTap: () {
                 if (listOfCities[index]["latitude"] != null &&
                     listOfCities[index]["longitude"] != null) {

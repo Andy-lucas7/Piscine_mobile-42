@@ -47,28 +47,38 @@ class _MyTopBarState extends State<MyTopBar> {
   Widget textFieldOrNot() {
     if (_textFieldVisible == false) {
       return InkWell(
-          onTap: () {
-            _toggleTextFieldVisibility();
-          },
-          child: Text(
-            'Search location...',
-            style: TextStyle(
-                fontStyle: FontStyle.italic,
-                color: Colors.white.withOpacity(0.1)),
-          ));
+        onTap: () {
+          _toggleTextFieldVisibility();
+        },
+        child: Text(
+          'Search location...',
+          style: TextStyle(
+            fontStyle: FontStyle.italic,
+            color: Colors.white.withOpacity(0.1),
+          ),
+        ),
+      );
     }
     return TextField(
+      cursorColor: Color.fromARGB(128, 255, 255, 255),
       style: TextStyle(
-          fontStyle: FontStyle.italic, color: Colors.white.withOpacity(0.5)),
+        fontStyle: FontStyle.italic,
+        color: Colors.white.withOpacity(0.5),
+      ),
       controller: _controller,
       onChanged: (value) {
         widget.changeText(value);
         widget.getCityInfo(widget.text);
       },
       decoration: InputDecoration(
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.white),
+        ),
         hintText: 'Search location...',
         hintStyle: TextStyle(
-            fontStyle: FontStyle.italic, color: Colors.white.withOpacity(0.5)),
+          fontStyle: FontStyle.italic,
+          color: Colors.white.withOpacity(0.5),
+        ),
       ),
     );
   }
@@ -92,7 +102,8 @@ class _MyTopBarState extends State<MyTopBar> {
       widget.changeErrorText("");
     } catch (e) {
       widget.changeErrorText(
-          "No Connexion\nPlease check your Internet connexion");
+        "No Connexion\nPlease check your Internet connexion",
+      );
       throw Exception("$e");
     }
   }
@@ -142,16 +153,16 @@ class _MyTopBarState extends State<MyTopBar> {
                     reverseGeocoding(lat, long);
                   } else {
                     widget.changeErrorText(
-                        "No Connexion\nPlease check your Internet connexion");
+                      "No Connexion\nPlease check your Internet connexion",
+                    );
                   }
                 } else {
                   widget.changeErrorText(
-                      "Geolocation is not available\nPlease enable it");
+                    "Geolocation is not available\nPlease enable it",
+                  );
                 }
               },
-              icon: const Icon(
-                Icons.location_on,
-              ),
+              icon: const Icon(Icons.location_on),
               color: Colors.white,
             ),
           ],

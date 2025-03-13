@@ -12,17 +12,13 @@ class WeatherApp extends StatefulWidget {
   State<WeatherApp> createState() => _WeatherAppState();
 }
 
-import 'package:flutter/material.dart';
-
 class WeatherTheme {
-  // 🎨 Paleta de cores para diferentes condições climáticas
   static const Color sunnyColor = Colors.orangeAccent;
   static const Color cloudyColor = Colors.blueGrey;
   static const Color rainyColor = Colors.blue;
   static const Color snowyColor = Colors.lightBlueAccent;
   static const Color stormyColor = Colors.deepPurple;
 
-  // 🔥 Mapear condições climáticas para cores
   static Color getBackgroundColor(String condition) {
     switch (condition.toLowerCase()) {
       case 'sunny':
@@ -40,11 +36,10 @@ class WeatherTheme {
       case 'storm':
         return stormyColor;
       default:
-        return Colors.grey[300]!; // Cor padrão
+        return Colors.grey[300]!;
     }
   }
 
-  // 📝 Estilos de Texto
   static TextStyle getTitleStyle(String condition) {
     return TextStyle(
       fontSize: 28,
@@ -74,9 +69,8 @@ class WeatherTheme {
   }
 }
 
-
 class _WeatherAppState extends State<WeatherApp> with TickerProviderStateMixin {
-  final Color _iconColor = const Color.fromARGB(255, 0, 183, 255);
+  final Color _iconColor = const Color.fromARGB(255, 42, 177, 255);
   final Color _backgroundColor = const Color.fromARGB(255, 29, 29, 29);
   late TabController _tabController;
   late DateTime now;
@@ -188,7 +182,7 @@ class _WeatherAppState extends State<WeatherApp> with TickerProviderStateMixin {
   Future<void> getCityInfo(String cityName) async {
     cityName = _text;
     final url =
-        'https://geocoding-api.open-meteo.com/v1/search?name=$cityName&count=10&language=en&format=json';
+        'https://geocoding-api.open-meteo.com/v1/search?name=$cityName&count=5&language=en&format=json';
 
     try {
       final response = await http.get(Uri.parse(url));
@@ -288,7 +282,6 @@ class _WeatherAppState extends State<WeatherApp> with TickerProviderStateMixin {
                 responseData['daily']['temperature_2m_min'][i].toString();
             String wcode = responseData['daily']['weather_code'][i].toString();
             String weather = _weatherMap[wcode] ?? '';
-            print(response.body);
             _week[i.toString()] = {
               'date': date.replaceAll("-", "/"),
               'min': "$min °C",
@@ -309,7 +302,7 @@ class _WeatherAppState extends State<WeatherApp> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 0, 0, 0),
+      backgroundColor: Colors.black,
       appBar: MyTopBar(
         changeText: changeText,
         changeErrorText: changeErrorText,
@@ -319,18 +312,28 @@ class _WeatherAppState extends State<WeatherApp> with TickerProviderStateMixin {
         changeLatAndLong: changeLatAndLong,
         changeLocation: changeLocation,
       ),
-      body: BodyOfApp(
-        text: _text,
-        errorText: _errorText,
-        controller: _tabController,
-        location: _location,
-        current: _current,
-        today: _today,
-        week: _week,
-        listOfCities: _listOfCities,
-        changeText: changeText,
-        changeLatAndLong: changeLatAndLong,
-        changeLocation: changeLocation,
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/background.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: BodyOfApp(
+          text: _text,
+          errorText: _errorText,
+          controller: _tabController,
+          location: _location,
+          current: _current,
+          today: _today,
+          week: _week,
+          listOfCities: _listOfCities,
+          changeText: changeText,
+          changeLatAndLong: changeLatAndLong,
+          changeLocation: changeLocation,
+        ),
       ),
       bottomNavigationBar: BottomBar(
         backgroundColor: _backgroundColor,

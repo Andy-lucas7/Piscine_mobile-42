@@ -15,27 +15,34 @@ class BottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-        color: backgroundColor,
-        child: TabBar(
-            controller: tabController,
-            labelColor: Colors.white,
-            unselectedLabelColor: Colors.grey,
-            indicatorColor: iconColor,
-            onTap: (value) {
-              tabController.animateTo(value,
-                  duration: const Duration(milliseconds: 1),
-                  curve: Curves.bounceOut);
-            },
-            tabs: [
-              Tab(
-                  icon: Icon(Icons.settings, color: iconColor),
-                  text: 'Currently'),
-              Tab(
-                  icon: Icon(Icons.today_outlined, color: iconColor),
-                  text: 'Today'),
-              Tab(
-                  icon: Icon(Icons.calendar_month_outlined, color: iconColor),
-                  text: 'Weekly'),
-            ]));
+      color: backgroundColor,
+      child: TabBar(
+        controller: tabController,
+        labelColor: Colors.white,
+        unselectedLabelColor: Colors.grey,
+        indicatorColor: iconColor,
+        onTap: (value) {
+          tabController.animateTo(
+            value,
+            duration: const Duration(milliseconds: 1),
+            curve: Curves.bounceOut,
+          );
+        },
+        tabs: [
+          Tab(
+            icon: Icon(Icons.history_toggle_off, color: iconColor),
+            text: 'Currently',
+          ),
+          Tab(
+            icon: Icon(Icons.today_outlined, color: iconColor),
+            text: 'Today',
+          ),
+          Tab(
+            icon: Icon(Icons.calendar_month_outlined, color: iconColor),
+            text: 'Weekly',
+          ),
+        ],
+      ),
+    );
   }
 }
