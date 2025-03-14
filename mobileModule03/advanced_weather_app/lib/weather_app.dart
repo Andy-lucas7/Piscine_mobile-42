@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'app_body.dart';
 import 'app_bottom_bar.dart';
 import 'app_top_bar.dart';
+import 'error_message.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -12,72 +13,22 @@ class WeatherApp extends StatefulWidget {
   State<WeatherApp> createState() => _WeatherAppState();
 }
 
-class WeatherTheme {
-  static const Color sunnyColor = Colors.orangeAccent;
-  static const Color cloudyColor = Colors.blueGrey;
-  static const Color rainyColor = Colors.blue;
-  static const Color snowyColor = Colors.lightBlueAccent;
-  static const Color stormyColor = Colors.deepPurple;
-
-  static Color getBackgroundColor(String condition) {
-    switch (condition.toLowerCase()) {
-      case 'sunny':
-      case 'clear':
-        return sunnyColor;
-      case 'cloudy':
-      case 'overcast':
-        return cloudyColor;
-      case 'rain':
-      case 'drizzle':
-        return rainyColor;
-      case 'snow':
-        return snowyColor;
-      case 'thunderstorm':
-      case 'storm':
-        return stormyColor;
-      default:
-        return Colors.grey[300]!;
-    }
-  }
-
-  static TextStyle getTitleStyle(String condition) {
-    return TextStyle(
-      fontSize: 28,
-      fontWeight: FontWeight.bold,
-      color: _getTextColor(condition),
-    );
-  }
-
-  static TextStyle getSubtitleStyle(String condition) {
-    return TextStyle(
-      fontSize: 18,
-      color: _getTextColor(condition).withValues(alpha: 210),
-    );
-  }
-
-  static ButtonStyle getButtonStyle(String condition) {
-    return ElevatedButton.styleFrom(
-      backgroundColor: getBackgroundColor(condition),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-    );
-  }
-
-  static Color _getTextColor(String condition) {
-    Color bg = getBackgroundColor(condition);
-    return bg.computeLuminance() > 0.5 ? Colors.black : Colors.white;
-  }
-}
-
 class _WeatherAppState extends State<WeatherApp> with TickerProviderStateMixin {
-  final Color _iconColor = const Color.fromARGB(255, 42, 177, 255);
-  final Color _backgroundColor = const Color.fromARGB(255, 29, 29, 29);
+  final Color _iconColor = const Color.fromARGB(255, 126, 208, 255);
+  final Color _backgroundColor = const Color.fromARGB(255, 24, 32, 37);
   late TabController _tabController;
   late DateTime now;
   late DateTime sevenDaysAgo;
   late String formattedDate;
   late String today;
   dynamic _listOfCities;
+  final _current = {'temp': '', 'weather': '', 'wind': ''};
+  final Map<String, Map<String, String>> _today = {};
+  final Map<String, Map<String, String>> _week = {};
+  String _text = "";
+  String _errorText = "";
+  final String errorAPI = "No Connexion\nPlease check your Internet connexion";
+  bool _isBusy = false;
 
   final Map<String, String> _location = {
     'cityName': '',
@@ -118,14 +69,6 @@ class _WeatherAppState extends State<WeatherApp> with TickerProviderStateMixin {
     '99': 'Thunderstorm with heavy hail',
   };
 
-  final _current = {'temp': '', 'weather': '', 'wind': ''};
-  final Map<String, Map<String, String>> _today = {};
-  final Map<String, Map<String, String>> _week = {};
-
-  String _text = "";
-  String _errorText = "";
-  final String errorAPI = "No Connexion\nPlease check your Internet connexion";
-
   @override
   void initState() {
     super.initState();
@@ -165,9 +108,15 @@ class _WeatherAppState extends State<WeatherApp> with TickerProviderStateMixin {
       _location['long'] = longi;
     });
     if (lati != '' && longi != '') {
+      setState(() {
+        _isBusy = true;
+      });
       await getCurrentInfo(lati, longi);
       await getTodayInfo(lati, longi);
       await getWeeklyInfo(lati, longi);
+      setState(() {
+        _isBusy = false;
+      });
     }
   }
 
@@ -321,19 +270,34 @@ class _WeatherAppState extends State<WeatherApp> with TickerProviderStateMixin {
             fit: BoxFit.cover,
           ),
         ),
-        child: BodyOfApp(
-          text: _text,
-          errorText: _errorText,
-          controller: _tabController,
-          location: _location,
-          current: _current,
-          today: _today,
-          week: _week,
-          listOfCities: _listOfCities,
-          changeText: changeText,
-          changeLatAndLong: changeLatAndLong,
-          changeLocation: changeLocation,
-        ),
+        child:
+            _isBusy
+                ? const Center(
+                  child: CircularProgressIndicator(color: Colors.white),
+                )
+                : _errorText.isEmpty
+                ? _location['cityName']!.isNotEmpty || _text.isNotEmpty
+                    ? BodyOfApp(
+                      text: _text,
+                      controller: _tabController,
+                      location: _location,
+                      current: _current,
+                      errorText: _errorText,
+                      today: _today,
+                      week: _week,
+                      listOfCities: _listOfCities,
+                      changeText: changeText,
+                      changeLatAndLong: changeLatAndLong,
+                      changeLocation: changeLocation,
+                    )
+                    : const Center(
+                      child: Text(
+                        'Please search a location\nor\nuse the geolocation button',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.white, fontSize: 20),
+                      ),
+                    )
+                : ErrorMessage(errorMessage: _errorText),
       ),
       bottomNavigationBar: BottomBar(
         backgroundColor: _backgroundColor,

@@ -1,26 +1,36 @@
 import 'error_message.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+// import 'package:intl/intl.dart';
+import 'chart_for_today.dart';
+import 'utils.dart';
+import 'package:flutter/cupertino.dart';
 
 abstract class StylePage extends StatelessWidget {
   const StylePage({super.key});
 
   static final Map<String, TextStyle> textStyles = {
-    'default': TextStyle(color: Colors.white),
+    'default': TextStyle(
+      fontFamily: 'Manrope',
+      color: Colors.white,
+      fontSize: 18,
+    ),
     'title': TextStyle(
+      fontFamily: 'Manrope',
       fontSize: 20,
       fontWeight: FontWeight.bold,
       color: Colors.white,
     ),
     'subtitle': TextStyle(
+      fontFamily: 'Manrope',
       fontSize: 16,
+      fontWeight: FontWeight.normal,
       color: Color.fromARGB(255, 255, 255, 255),
     ),
   };
 }
 
 class CurrentlyPage extends StatelessWidget {
-  const CurrentlyPage({
+  CurrentlyPage({
     super.key,
     required this.coord,
     required this.current,
@@ -29,6 +39,7 @@ class CurrentlyPage extends StatelessWidget {
 
   final Map<String, String> coord;
   final Map<String, String> current;
+  final Map<String, IconData> wIcons = weatherIcons;
   final String errorText;
 
   @override
@@ -38,41 +49,79 @@ class CurrentlyPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
+            Padding(
+              padding: EdgeInsets.symmetric(
+                vertical: 0.04 * MediaQuery.of(context).size.height,
+              ),
+            ),
             Text(
               "${coord['cityName']}",
               style: TextStyle(
-                fontSize: 38,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+                fontSize: 20,
+                color: const Color.fromARGB(255, 207, 239, 247),
+                fontFamily: 'Manrope',
+                fontWeight: FontWeight.w200,
               ),
             ),
             Text(
-              "${coord['region']}",
-              style: TextStyle(
-                fontSize: 38,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+              "${coord['region']}, ${coord['country']}",
+              style: StylePage.textStyles['title'],
             ),
-            Text(
-              "${coord['country']}",
-              style: TextStyle(
-                fontSize: 38,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+            Padding(
+              padding: EdgeInsets.symmetric(
+                vertical: 0.03 * MediaQuery.of(context).size.height,
               ),
             ),
             Text(
               "${current['temp']}",
-              style: TextStyle(fontSize: 26, color: Colors.white),
+              style: TextStyle(
+                fontSize: 50,
+                color: Colors.white,
+                fontFamily: 'Manrope',
+                fontWeight: FontWeight.w300,
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(
+                vertical: 0.03 * MediaQuery.of(context).size.height,
+              ),
+            ),
+            Icon(
+              weatherIcons[current['weather']],
+              color: getIconColor('${current['weather']}'),
+              size: 90,
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(
+                vertical: 0.02 * MediaQuery.of(context).size.height,
+              ),
             ),
             Text(
               "${current['weather']}",
-              style: TextStyle(fontSize: 20, color: Colors.white),
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.white,
+                fontFamily: 'Manrope',
+                fontWeight: FontWeight.w300,
+              ),
             ),
-            Text(
-              "${current['wind']}",
-              style: TextStyle(fontSize: 20, color: Colors.white),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Icon(
+                  CupertinoIcons.wind,
+                  color: const Color.fromARGB(255, 208, 224, 233),
+                ),
+                Text(
+                  " ${current['wind']}",
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                    fontFamily: 'Manrope',
+                    fontWeight: FontWeight.w300,
+                  ),
+                ),
+              ],
             ),
           ],
         )
@@ -81,69 +130,60 @@ class CurrentlyPage extends StatelessWidget {
 }
 
 class TodayPage extends StatelessWidget {
-  const TodayPage({
-    super.key,
-    required this.coord,
-    required this.today,
-    required this.errorText,
-  });
+  TodayPage({super.key, required this.coord, required this.today});
 
   final Map<String, String> coord;
   final Map<String, Map<String, String>> today;
-  final String errorText;
+  final yourScrollController = ScrollController();
+
+  final Map<String, IconData> wIcons = weatherIcons;
 
   List<Widget> todayList() {
     List<Widget> list = [];
 
-    String todayDate = DateFormat('dd-MM-yyyy').format(DateTime.now());
-
-    list.add(
-      Center(
-        child: Text(
-          "${coord['cityName']}",
-          style: StylePage.textStyles['title'],
-        ),
-      ),
-    );
-    list.add(
-      Center(
-        child: Text("${coord['region']}", style: StylePage.textStyles['title']),
-      ),
-    );
-    list.add(
-      Center(
-        child: Text(
-          "${coord['country']}",
-          style: StylePage.textStyles['title'],
-        ),
-      ),
-    );
-
-    if (today.isNotEmpty) {
-      list.add(
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 8.0),
-          child: Text(
-            "Data: $todayDate",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      );
-    }
-
     list.addAll(
       today.entries.map(
-        (entry) => Padding(
-          padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 3.0),
-          child: Text(
-            '${entry.value['hour']}   ${entry.value['temp']}    ${entry.value['wind']}    ${entry.value['weather']}',
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
-            style: StylePage.textStyles['default'],
+        (entry) => Container(
+          padding: const EdgeInsets.only(right: 15, left: 15),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                "${entry.value['hour']}",
+                style: StylePage.textStyles['default'],
+              ),
+              const SizedBox(height: 15.0),
+              Icon(
+                weatherIcons[entry.value['weather']],
+                color: getIconColor("${entry.value['weather']}"),
+                size: 50,
+              ),
+              const SizedBox(height: 15.0),
+              Text(
+                "${entry.value['temp']}",
+                style: const TextStyle(
+                  color: Color.fromARGB(255, 255, 255, 254),
+                  fontSize: 15.00,
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Icon(
+                    CupertinoIcons.wind,
+                    color: Color.fromARGB(255, 172, 209, 230),
+                  ),
+                  Text(
+                    " ${entry.value['wind']}",
+                    style: const TextStyle(
+                      color: Color.fromARGB(255, 255, 255, 255),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),
@@ -153,9 +193,60 @@ class TodayPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return errorText.isEmpty
-        ? ListView(children: todayList())
-        : ErrorMessage(errorMessage: errorText);
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const SizedBox(height: 20.0),
+          Text(
+            "${coord['cityName']}",
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 26,
+              fontFamily: 'Manrope',
+              fontWeight: FontWeight.w100,
+            ),
+          ),
+          Text(
+            "${coord['region']}, ${coord['country']}",
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontFamily: 'Manrope',
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+          Container(
+            height: 20.0,
+            margin: const EdgeInsets.all(30),
+            child: const Center(
+              child: Text(
+                "Today temperatures",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ),
+          ChartToday(map: today),
+          SizedBox(
+            height: 175,
+            child: RawScrollbar(
+              thumbVisibility: true,
+              thumbColor: const Color.fromARGB(255, 132, 216, 255),
+              radius: const Radius.circular(20),
+              thickness: 5,
+              controller: yourScrollController,
+              child: ListView(
+                controller: yourScrollController,
+                scrollDirection: Axis.horizontal,
+                children: todayList(),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -203,7 +294,7 @@ class WeeklyPage extends StatelessWidget {
             '${entry.value['date']}      |      ${entry.value['min']}    ${entry.value['max']}      |      ${entry.value['weather']}',
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
-            style: TextStyle(color: Colors.white, fontSize: 15),
+            style: StylePage.textStyles['default'],
           ),
         ),
       ),

@@ -34,30 +34,24 @@ class BodyOfApp extends StatelessWidget {
   Widget build(BuildContext context) {
     if (text.isNotEmpty) {
       return CityInfoPage(
-          listOfCities: listOfCities,
-          changeText: changeText,
-          changeLatAndLong: changeLatAndLong,
-          changeLocation: changeLocation,
-          errorText: errorText);
+        listOfCities: listOfCities,
+        changeText: changeText,
+        changeLatAndLong: changeLatAndLong,
+        changeLocation: changeLocation,
+        errorText: errorText,
+      );
     }
     return TabBarView(
-        controller: controller,
-        children: [
-          CurrentlyPage(
-            coord: location,
-            current: current,
-            errorText: errorText,
-          ),
-          TodayPage(
-            coord: location,
-            today: today,
-            errorText: errorText,
-          ),
-          WeeklyPage(
-            coord: location,
-            weekly: week,
-            errorText: errorText,
-          ),
-        ]);
+      controller: controller,
+      children: [
+        CurrentlyPage(coord: location, current: current, errorText: errorText),
+        TodayPage(
+          coord: location,
+          today: today,
+          // errorText: errorText,
+        ),
+        WeeklyPage(coord: location, weekly: week, errorText: errorText),
+      ],
+    );
   }
 }
