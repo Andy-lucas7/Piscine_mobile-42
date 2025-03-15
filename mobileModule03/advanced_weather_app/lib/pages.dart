@@ -1,7 +1,7 @@
 import 'error_message.dart';
 import 'package:flutter/material.dart';
-// import 'package:intl/intl.dart';
 import 'chart_for_today.dart';
+import 'chart_for_weekly.dart';
 import 'utils.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -134,7 +134,7 @@ class TodayPage extends StatelessWidget {
 
   final Map<String, String> coord;
   final Map<String, Map<String, String>> today;
-  final yourScrollController = ScrollController();
+  final yourScrollController = ScrollController(keepScrollOffset: true);
 
   final Map<String, IconData> wIcons = weatherIcons;
 
@@ -233,12 +233,13 @@ class TodayPage extends StatelessWidget {
             child: RawScrollbar(
               thumbVisibility: true,
               thumbColor: const Color.fromARGB(255, 132, 216, 255),
+              minThumbLength: 100,
               radius: const Radius.circular(20),
-              thickness: 5,
+              thickness: 13,
               controller: yourScrollController,
               child: ListView(
+                scrollDirection: Axis.values[0],
                 controller: yourScrollController,
-                scrollDirection: Axis.horizontal,
                 children: todayList(),
               ),
             ),
@@ -250,50 +251,55 @@ class TodayPage extends StatelessWidget {
 }
 
 class WeeklyPage extends StatelessWidget {
-  const WeeklyPage({
-    super.key,
-    required this.coord,
-    required this.weekly,
-    required this.errorText,
-  });
+  WeeklyPage({super.key, required this.coord, required this.weekly});
 
   final Map<String, String> coord;
   final Map<String, Map<String, String>> weekly;
-  final String errorText;
+  final yourScrollController = ScrollController();
+
+  final Map<String, IconData> wIcons = weatherIcons;
 
   List<Widget> weeklyList() {
     List<Widget> list = [];
 
-    list.add(
-      Center(
-        child: Text(
-          "${coord['cityName']}",
-          style: StylePage.textStyles['title'],
-        ),
-      ),
-    );
-    list.add(
-      Center(
-        child: Text("${coord['region']}", style: StylePage.textStyles['title']),
-      ),
-    );
-    list.add(
-      Center(
-        child: Text(
-          "${coord['country']}",
-          style: StylePage.textStyles['title'],
-        ),
-      ),
-    );
     list.addAll(
       weekly.entries.map(
-        (entry) => Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 3.0),
-          child: Text(
-            '${entry.value['date']}      |      ${entry.value['min']}    ${entry.value['max']}      |      ${entry.value['weather']}',
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
-            style: StylePage.textStyles['default'],
+        (entry) => Container(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                "${entry.value['date']}",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 15,
+                  fontFamily: 'Manrope',
+                ),
+              ),
+              const SizedBox(height: 20.0),
+              Icon(
+                weatherIcons[entry.value['weather']],
+                color: getIconColor("${entry.value['weather']}"),
+                size: 50,
+              ),
+              const SizedBox(height: 10.0),
+              Text(
+                "${entry.value['max']}",
+                style: const TextStyle(
+                  color: Color.fromARGB(255, 255, 255, 255),
+                  fontSize: 15.00,
+                ),
+              ),
+              Text(
+                "${entry.value['min']}",
+                style: const TextStyle(
+                  color: Color.fromARGB(255, 217, 235, 247),
+                  fontSize: 15.00,
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -303,8 +309,72 @@ class WeeklyPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return errorText.isEmpty
-        ? ListView(children: weeklyList())
-        : ErrorMessage(errorMessage: errorText);
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const SizedBox(height: 20.0),
+          Text(
+            "${coord['cityName']}",
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 26,
+              fontFamily: 'Manrope',
+              fontWeight: FontWeight.w100,
+            ),
+          ),
+          Text(
+            "${coord['region']}, ${coord['country']}",
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontFamily: 'Manrope',
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+          Container(
+            height: 20.0,
+            margin: const EdgeInsets.all(20),
+            child: const Center(
+              child: Text(
+                "Weekly temperatures",
+                style: TextStyle(color: Colors.white, fontSize: 15),
+              ),
+            ),
+          ),
+
+          ChartWeek(map: weekly),
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(height: 45),
+              Icon(Icons.show_chart, color: Color.fromARGB(255, 138, 202, 255)),
+              Text('min temperature', style: TextStyle(color: Colors.white)),
+              SizedBox(width: 10),
+              Icon(Icons.show_chart, color: Color.fromARGB(255, 0, 183, 255)),
+              Text('max temperature', style: TextStyle(color: Colors.white)),
+            ],
+          ),
+          SizedBox(
+            height: 170,
+            child: RawScrollbar(
+              thumbVisibility: true,
+              thumbColor: const Color.fromARGB(255, 132, 216, 255),
+              minThumbLength: 100,
+              radius: const Radius.circular(20),
+              thickness: 13,
+              controller: yourScrollController,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                controller: yourScrollController,
+                children: weeklyList(),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

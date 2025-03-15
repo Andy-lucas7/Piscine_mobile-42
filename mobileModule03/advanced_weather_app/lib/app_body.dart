@@ -45,12 +45,8 @@ class BodyOfApp extends StatelessWidget {
       controller: controller,
       children: [
         CurrentlyPage(coord: location, current: current, errorText: errorText),
-        TodayPage(
-          coord: location,
-          today: today,
-          // errorText: errorText,
-        ),
-        WeeklyPage(coord: location, weekly: week, errorText: errorText),
+        TodayPage(coord: location, today: today),
+        WeeklyPage(coord: location, weekly: week),
       ],
     );
   }
